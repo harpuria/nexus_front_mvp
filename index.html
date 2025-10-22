@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nexus Admin Access</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-yAE/X+0B8OSiSODVriwkRd+JreQxfbTx88IoKGoay/WzSWIsOB72yFv/xUgJINJg"
+    crossorigin="anonymous"
+  />
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Administrator Login</h2>
+          </div>
+          <div class="card-body">
+            <form id="login-form" novalidate>
+              <div class="mb-3">
+                <label class="form-label" for="login-email">Email</label>
+                <input
+                  class="form-control"
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  placeholder="admin@example.com"
+                  required
+                />
+                <div class="invalid-feedback">Please enter a valid email.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="login-password">Password</label>
+                <input
+                  class="form-control"
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  placeholder="********"
+                  required
+                />
+                <div class="invalid-feedback">Password is required.</div>
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-primary" type="submit">Sign in</button>
+              </div>
+            </form>
+            <div class="alert mt-3 d-none" id="login-alert" role="alert"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h2 class="h5 mb-0">Initialize First Admin User</h2>
+          </div>
+          <div class="card-body">
+            <form id="initialize-form" novalidate>
+              <div class="mb-3">
+                <label class="form-label" for="init-email">Email</label>
+                <input
+                  class="form-control"
+                  id="init-email"
+                  name="email"
+                  type="email"
+                  placeholder="first.admin@example.com"
+                  required
+                />
+                <div class="invalid-feedback">Please enter a valid email.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="init-password">Password</label>
+                <input
+                  class="form-control"
+                  id="init-password"
+                  name="password"
+                  type="password"
+                  placeholder="Create a secure password"
+                  required
+                  minlength="8"
+                />
+                <div class="invalid-feedback">Password must be at least 8 characters.</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="init-password-confirm">Confirm Password</label>
+                <input
+                  class="form-control"
+                  id="init-password-confirm"
+                  name="password_confirmation"
+                  type="password"
+                  placeholder="Confirm your password"
+                  required
+                />
+                <div class="invalid-feedback">Passwords must match.</div>
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-success" type="submit">Create Admin</button>
+              </div>
+            </form>
+            <div class="alert mt-3 d-none" id="initialize-alert" role="alert"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-6mN8H0CozN8K+GsI9/4psEQ6KDAdM8YGtS+w0P5Yt7k="
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-LxSg6u40qCMgfHdCqkfNNpJBbGAbIYW/W2PASi6DPd7OJbRRqtD9h5pz50jdK4bO"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    (function () {
+      const loginForm = $('#login-form');
+      const initializeForm = $('#initialize-form');
+      const loginAlert = $('#login-alert');
+      const initializeAlert = $('#initialize-alert');
+
+      function showAlert($alert, type, message) {
+        $alert
+          .removeClass('d-none alert-success alert-danger alert-info')
+          .addClass(`alert-${type}`)
+          .text(message);
+      }
+
+      function clearAlert($alert) {
+        $alert.addClass('d-none').removeClass('alert-success alert-danger alert-info').text('');
+      }
+
+      function handleAjaxError($alert, xhr) {
+        let message = 'An unexpected error occurred.';
+        if (xhr?.responseJSON?.message) {
+          message = xhr.responseJSON.message;
+        } else if (xhr?.responseJSON?.errors) {
+          message = Object.values(xhr.responseJSON.errors).flat().join('\n');
+        }
+        showAlert($alert, 'danger', message);
+      }
+
+      function redirectAfterAuth(path) {
+        window.location.href = path;
+      }
+
+      loginForm.on('submit', function (event) {
+        event.preventDefault();
+        clearAlert(loginAlert);
+
+        if (!event.target.checkValidity()) {
+          event.stopPropagation();
+          $(event.target).addClass('was-validated');
+          return;
+        }
+
+        const payload = {
+          email: $('#login-email').val(),
+          password: $('#login-password').val(),
+        };
+
+        $.ajax({
+          url: '/api/v1/auth/login',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(payload),
+        })
+          .done(function (response) {
+            if (response?.token) {
+              localStorage.setItem('authToken', response.token);
+            }
+            showAlert(loginAlert, 'success', 'Login successful! Redirecting...');
+            setTimeout(function () {
+              redirectAfterAuth('/admin/dashboard');
+            }, 1000);
+          })
+          .fail(function (xhr) {
+            handleAjaxError(loginAlert, xhr);
+          });
+      });
+
+      initializeForm.on('submit', function (event) {
+        event.preventDefault();
+        clearAlert(initializeAlert);
+
+        if ($('#init-password').val() !== $('#init-password-confirm').val()) {
+          showAlert(initializeAlert, 'danger', 'Passwords do not match.');
+          return;
+        }
+
+        if (!event.target.checkValidity()) {
+          event.stopPropagation();
+          $(event.target).addClass('was-validated');
+          return;
+        }
+
+        const payload = {
+          email: $('#init-email').val(),
+          password: $('#init-password').val(),
+          password_confirmation: $('#init-password-confirm').val(),
+        };
+
+        $.ajax({
+          url: '/api/v1/admin/initialize',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(payload),
+        })
+          .done(function (response) {
+            if (response?.token) {
+              localStorage.setItem('authToken', response.token);
+            }
+            showAlert(
+              initializeAlert,
+              'success',
+              'Administrator initialized successfully! Redirecting to setup...'
+            );
+            setTimeout(function () {
+              redirectAfterAuth('/admin/setup');
+            }, 1500);
+          })
+          .fail(function (xhr) {
+            handleAjaxError(initializeAlert, xhr);
+          });
+      });
+    })();
+  </script>
+</body>
+</html>
