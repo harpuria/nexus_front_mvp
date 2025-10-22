@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>게임 운영 현황 대시보드</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .status-card {
+        min-height: 160px;
+      }
+
+      .status-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .table-responsive {
+        max-height: 480px;
+      }
+
+      .badge-status {
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand">Nexus 관리자</span>
+        <div class="d-flex align-items-center text-white-50">
+          <small id="lastUpdated" class="me-3"></small>
+          <button id="logoutButton" class="btn btn-outline-light btn-sm">
+            로그아웃
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+        <div>
+          <h1 class="h3 mb-0">게임 운영 현황</h1>
+          <p class="text-muted mb-0">
+            /api/v1/game/list 데이터를 기반으로 실시간 상태를 확인하세요.
+          </p>
+        </div>
+        <div class="text-muted small" id="nextRefresh"></div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border-success status-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="fw-semibold text-success">운영 중</span>
+                <i class="bi bi-play-circle text-success fs-4"></i>
+              </div>
+              <p class="status-value text-success mb-1" id="operatingCount">0</p>
+              <p class="text-muted mb-0">정상 운영 중인 게임 수</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border-danger status-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="fw-semibold text-danger">중단</span>
+                <i class="bi bi-pause-circle text-danger fs-4"></i>
+              </div>
+              <p class="status-value text-danger mb-1" id="stoppedCount">0</p>
+              <p class="text-muted mb-0">중단된 게임 수</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border-warning status-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="fw-semibold text-warning">점검</span>
+                <i class="bi bi-tools text-warning fs-4"></i>
+              </div>
+              <p class="status-value text-warning mb-1" id="maintenanceCount">0</p>
+              <p class="text-muted mb-0">점검 중인 게임 수</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="card border-primary status-card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <span class="fw-semibold text-primary">전체</span>
+                <i class="bi bi-collection text-primary fs-4"></i>
+              </div>
+              <p class="status-value text-primary mb-1" id="totalCount">0</p>
+              <p class="text-muted mb-0">등록된 게임 전체 수</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <span class="fw-semibold">게임 상세 목록</span>
+          <div class="d-flex align-items-center gap-2">
+            <div class="form-text mb-0">30초마다 자동 새로고침</div>
+            <button id="manualRefresh" class="btn btn-outline-primary btn-sm">
+              새로고침
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">게임 이름</th>
+                <th scope="col">상태</th>
+                <th scope="col">게임 ID</th>
+                <th scope="col">업데이트</th>
+              </tr>
+            </thead>
+            <tbody id="gameTableBody">
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  데이터를 불러오는 중입니다...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-3gJwYp4g3fkG8bI1+58B8vZf8Q72Wd3MGIdhFAd0GJw="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(function () {
+        const TOKEN_KEY = 'accessToken';
+        const LOGIN_PATH = '/login.html';
+        const REFRESH_INTERVAL = 30000;
+        let refreshTimer = null;
+
+        const statusMeta = {
+          OPERATING: { label: '운영', className: 'bg-success' },
+          STOPPED: { label: '중단', className: 'bg-danger' },
+          MAINTENANCE: { label: '점검', className: 'bg-warning text-dark' },
+        };
+
+        const $tableBody = $('#gameTableBody');
+        const $lastUpdated = $('#lastUpdated');
+        const $nextRefresh = $('#nextRefresh');
+
+        function redirectToLogin() {
+          window.location.href = LOGIN_PATH;
+        }
+
+        function getToken() {
+          return window.localStorage.getItem(TOKEN_KEY);
+        }
+
+        function ensureAuthenticated() {
+          const token = getToken();
+          if (!token) {
+            redirectToLogin();
+            return null;
+          }
+          return token;
+        }
+
+        function escapeHtml(value) {
+          return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        }
+
+        function formatDateTime(value) {
+          if (!value) {
+            return '-';
+          }
+          const date = new Date(value);
+          if (Number.isNaN(date.getTime())) {
+            return value;
+          }
+          return new Intl.DateTimeFormat('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(date);
+        }
+
+        function renderCounts(games) {
+          const counts = { OPERATING: 0, STOPPED: 0, MAINTENANCE: 0 };
+          games.forEach((game) => {
+            const status = game.status;
+            if (status && counts.hasOwnProperty(status)) {
+              counts[status] += 1;
+            }
+          });
+
+          $('#operatingCount').text(counts.OPERATING ?? 0);
+          $('#stoppedCount').text(counts.STOPPED ?? 0);
+          $('#maintenanceCount').text(counts.MAINTENANCE ?? 0);
+          $('#totalCount').text(games.length ?? 0);
+        }
+
+        function renderTable(games) {
+          if (!games.length) {
+            $tableBody.html(`
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  등록된 게임이 없습니다.
+                </td>
+              </tr>
+            `);
+            return;
+          }
+
+          const rows = games
+            .map((game, index) => {
+              const statusInfo = statusMeta[game.status] || {
+                label: game.status || '미확인',
+                className: 'bg-secondary',
+              };
+
+              return `
+                <tr>
+                  <th scope="row">${index + 1}</th>
+                  <td>${escapeHtml(game.name || '-')}</td>
+                  <td>
+                    <span class="badge badge-status ${statusInfo.className}">
+                      ${escapeHtml(statusInfo.label)}
+                    </span>
+                  </td>
+                  <td>${escapeHtml(game.gameId || '-')}</td>
+                  <td>${escapeHtml(formatDateTime(game.updatedAt))}</td>
+                </tr>
+              `;
+            })
+            .join('');
+
+          $tableBody.html(rows);
+        }
+
+        function handleError(message) {
+          $tableBody.html(`
+            <tr>
+              <td colspan="5" class="text-center text-danger py-4">
+                ${escapeHtml(message)}
+              </td>
+            </tr>
+          `);
+        }
+
+        function updateTimestamps() {
+          const now = new Date();
+          $lastUpdated.text(`마지막 업데이트: ${formatDateTime(now)}`);
+          $nextRefresh.text(
+            `다음 자동 새로고침: ${formatDateTime(new Date(now.getTime() + REFRESH_INTERVAL))}`
+          );
+        }
+
+        function fetchGames() {
+          const token = ensureAuthenticated();
+          if (!token) {
+            return;
+          }
+
+          $tableBody.html(`
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">
+                데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          `);
+
+          $.ajax({
+            url: '/api/v1/game/list',
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .done((response) => {
+              const hasError = !response || response.error === true || response.success === false;
+              if (hasError) {
+                console.warn('게임 목록 응답 오류', response);
+                handleError(response?.message || '데이터를 불러오지 못했습니다.');
+                return;
+              }
+
+              const games = Array.isArray(response.data) ? response.data : [];
+              renderCounts(games);
+              renderTable(games);
+              updateTimestamps();
+            })
+            .fail((xhr) => {
+              if (xhr.status === 401 || xhr.status === 403) {
+                window.localStorage.removeItem(TOKEN_KEY);
+                redirectToLogin();
+                return;
+              }
+              console.error('게임 정보를 불러오는 중 오류가 발생했습니다.', xhr);
+              handleError('게임 정보를 불러오는 중 오류가 발생했습니다.');
+            });
+        }
+
+        function scheduleRefresh() {
+          if (refreshTimer) {
+            clearInterval(refreshTimer);
+          }
+          refreshTimer = setInterval(fetchGames, REFRESH_INTERVAL);
+        }
+
+        $('#manualRefresh').on('click', () => {
+          fetchGames();
+          scheduleRefresh();
+        });
+
+        $('#logoutButton').on('click', () => {
+          window.localStorage.removeItem(TOKEN_KEY);
+          redirectToLogin();
+        });
+
+        if (ensureAuthenticated()) {
+          fetchGames();
+          scheduleRefresh();
+        }
+      });
+    </script>
+  </body>
+</html>
