@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus 관리 대시보드</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div id="feedback-container" class="feedback-container position-fixed top-0 end-0 p-3"></div>
+    <header class="navbar navbar-dark bg-dark shadow-sm">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Nexus 관리 대시보드</span>
+      </div>
+    </header>
+
+    <div class="container-fluid">
+      <div class="row flex-nowrap">
+        <nav id="sidebarNav" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse show">
+          <div class="position-sticky pt-3">
+            <div class="nav flex-column nav-pills" role="tablist" aria-orientation="vertical">
+              <a class="nav-link active" id="nav-admin" data-bs-toggle="pill" href="#adminSection" role="tab">관리자</a>
+              <a class="nav-link" id="nav-game" data-bs-toggle="pill" href="#gameSection" role="tab">게임</a>
+              <a class="nav-link" id="nav-org" data-bs-toggle="pill" href="#orgSection" role="tab">단체(Org)</a>
+            </div>
+          </div>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <div class="tab-content pt-4">
+            <section class="tab-pane fade show active" id="adminSection" role="tabpanel" aria-labelledby="nav-admin">
+              <div class="card section-card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                  <span>관리자 목록</span>
+                  <small class="text-muted">검색 결과 행을 클릭하면 상세 정보가 열립니다.</small>
+                </div>
+                <div class="card-body">
+                  <form id="admin-list-form" class="row g-3 align-items-end">
+                    <div class="col-sm-3">
+                      <label for="adminKeyword" class="form-label">키워드</label>
+                      <input type="text" class="form-control" id="adminKeyword" name="keyword" placeholder="이름 또는 이메일" />
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="adminPage" class="form-label">페이지</label>
+                      <input type="number" class="form-control" id="adminPage" name="page" min="0" placeholder="0" />
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="adminSize" class="form-label">페이지 크기</label>
+                      <input type="number" class="form-control" id="adminSize" name="size" min="1" max="100" placeholder="20" />
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="adminSort" class="form-label">정렬 컬럼</label>
+                      <input type="text" class="form-control" id="adminSort" name="sort" placeholder="createdAt" />
+                    </div>
+                    <div class="col-sm-2">
+                      <label for="adminDirection" class="form-label">정렬 방향</label>
+                      <select id="adminDirection" name="direction" class="form-select">
+                        <option value="">선택</option>
+                        <option value="asc">오름차순</option>
+                        <option value="desc">내림차순</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-1 d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-grow-1">조회</button>
+                      <button type="button" id="admin-list-reset" class="btn btn-outline-secondary" title="검색 조건 초기화">
+                        초기화
+                      </button>
+                    </div>
+                  </form>
+
+                  <div class="table-responsive mt-4">
+                    <table class="table table-hover table-sm align-middle" id="admin-list-table">
+                      <thead class="table-light">
+                        <tr>
+                          <th scope="col">ID</th>
+                          <th scope="col">이름</th>
+                          <th scope="col">이메일</th>
+                          <th scope="col">권한</th>
+                          <th scope="col">게임 ID</th>
+                          <th scope="col">단체 ID</th>
+                          <th scope="col" class="text-center">관리</th>
+                        </tr>
+                      </thead>
+                      <tbody id="admin-list-body">
+                        <tr>
+                          <td colspan="7" class="text-center text-muted">검색 조건을 입력하고 조회 버튼을 눌러주세요.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card section-card">
+                <div class="card-header">관리자 상세</div>
+                <div class="card-body">
+                  <form id="admin-detail-form" class="row g-3 align-items-end">
+                    <div class="col-sm-3">
+                      <label for="adminDetailId" class="form-label">관리자 ID</label>
+                      <input type="number" class="form-control" id="adminDetailId" name="adminId" required min="1" />
+                    </div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-outline-primary">상세 조회</button>
+                    </div>
+                  </form>
+                  <div id="admin-detail-container" class="details-grid mt-4"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="tab-pane fade" id="gameSection" role="tabpanel" aria-labelledby="nav-game">
+              <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span>게임 상세</span>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="game-refresh-button" disabled>새로고침</button>
+                </div>
+                <div class="card-body">
+                  <form id="game-detail-form" class="row g-3 align-items-end">
+                    <div class="col-sm-3">
+                      <label for="gameDetailId" class="form-label">게임 ID</label>
+                      <input type="number" class="form-control" id="gameDetailId" name="gameId" required min="1" />
+                    </div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-outline-primary">상세 조회</button>
+                    </div>
+                    <div class="col-auto">
+                      <button type="button" class="btn btn-primary" id="game-edit-button" data-bs-toggle="modal" data-bs-target="#gameEditModal" disabled>
+                        수정
+                      </button>
+                    </div>
+                  </form>
+                  <div id="game-detail-container" class="details-grid mt-4"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="tab-pane fade" id="orgSection" role="tabpanel" aria-labelledby="nav-org">
+              <div class="card section-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span>단체 상세</span>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="org-refresh-button" disabled>새로고침</button>
+                </div>
+                <div class="card-body">
+                  <form id="org-detail-form" class="row g-3 align-items-end">
+                    <div class="col-sm-3">
+                      <label for="orgDetailId" class="form-label">단체 ID</label>
+                      <input type="number" class="form-control" id="orgDetailId" name="orgId" required min="1" />
+                    </div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-outline-primary">상세 조회</button>
+                    </div>
+                    <div class="col-auto">
+                      <button type="button" class="btn btn-primary" id="org-edit-button" data-bs-toggle="modal" data-bs-target="#orgEditModal" disabled>
+                        수정
+                      </button>
+                    </div>
+                  </form>
+                  <div id="org-detail-container" class="details-grid mt-4"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- 관리자 수정 모달 -->
+    <div class="modal fade" id="adminEditModal" tabindex="-1" aria-labelledby="adminEditModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="adminEditModalLabel">관리자 정보 수정</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="admin-edit-form">
+            <div class="modal-body row g-3">
+              <div class="col-md-4">
+                <label class="form-label">관리자 ID</label>
+                <input type="text" class="form-control" id="adminEditId" readonly />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="adminEditGameId">게임 ID</label>
+                <input type="number" class="form-control" id="adminEditGameId" name="gameId" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="adminEditRole">권한</label>
+                <select class="form-select" id="adminEditRole" name="adminRole">
+                  <option value="">선택</option>
+                  <option value="SUPER">SUPER</option>
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="OPERATOR">OPERATOR</option>
+                  <option value="NO_ROLE">NO_ROLE</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminEditName">이름</label>
+                <input type="text" class="form-control" id="adminEditName" name="adminNm" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminEditEmail">이메일</label>
+                <input type="email" class="form-control" id="adminEditEmail" name="adminEmail" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminEditPassword">비밀번호</label>
+                <input type="password" class="form-control" id="adminEditPassword" name="loginPw" placeholder="변경 시에만 입력" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="adminEditIsDel">삭제 여부</label>
+                <select class="form-select" id="adminEditIsDel" name="isDel">
+                  <option value="">선택</option>
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="adminEditUpdatedBy">수정자</label>
+                <input type="text" class="form-control" id="adminEditUpdatedBy" name="updatedBy" />
+              </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-danger" id="admin-delete-button">삭제</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 게임 수정 모달 -->
+    <div class="modal fade" id="gameEditModal" tabindex="-1" aria-labelledby="gameEditModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="gameEditModalLabel">게임 정보 수정</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="game-edit-form">
+            <div class="modal-body row g-3">
+              <div class="col-md-4">
+                <label class="form-label">게임 ID</label>
+                <input type="text" class="form-control" id="gameEditId" readonly />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="gameEditName">게임명</label>
+                <input type="text" class="form-control" id="gameEditName" name="name" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="gameEditStatus">상태</label>
+                <select class="form-select" id="gameEditStatus" name="status">
+                  <option value="">선택</option>
+                  <option value="OPERATING">OPERATING</option>
+                  <option value="STOPPED">STOPPED</option>
+                  <option value="MAINTENANCE">MAINTENANCE</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="gameEditIsDel">삭제 여부</label>
+                <select class="form-select" id="gameEditIsDel" name="isDel">
+                  <option value="">선택</option>
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="gameEditUpdatedBy">수정자</label>
+                <input type="text" class="form-control" id="gameEditUpdatedBy" name="updateBy" />
+              </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-danger" id="game-delete-button">삭제</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 단체 수정 모달 -->
+    <div class="modal fade" id="orgEditModal" tabindex="-1" aria-labelledby="orgEditModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="orgEditModalLabel">단체 정보 수정</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="org-edit-form">
+            <div class="modal-body row g-3">
+              <div class="col-md-4">
+                <label class="form-label">단체 ID</label>
+                <input type="text" class="form-control" id="orgEditId" readonly />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="orgEditName">단체명</label>
+                <input type="text" class="form-control" id="orgEditName" name="orgNm" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="orgEditCode">사업자번호</label>
+                <input type="text" class="form-control" id="orgEditCode" name="orgCd" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="orgEditUpdatedBy">수정자</label>
+                <input type="text" class="form-control" id="orgEditUpdatedBy" name="updateBy" />
+              </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-danger" id="org-delete-button">삭제</button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="submit" class="btn btn-primary">저장</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
