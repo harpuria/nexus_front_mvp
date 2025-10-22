@@ -1,0 +1,48 @@
+body {
+  background-color: #f8f9fa;
+}
+
+main {
+  padding-top: 1.5rem;
+  padding-bottom: 4rem;
+}
+
+.section-card {
+  margin-bottom: 2rem;
+}
+
+#sidebarNav .nav-link {
+  cursor: pointer;
+}
+
+.feedback-container {
+  z-index: 1080;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.details-grid .detail-item {
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.details-grid .detail-item h6 {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.35rem;
+}
+
+.details-grid .detail-item p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.table-hover tbody tr {
+  cursor: pointer;
+}
