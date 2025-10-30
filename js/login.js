@@ -10,12 +10,11 @@ $(document).ready(function() {
 
     try {
       const data = await apiRequest("/admin/login", "POST", { loginId: id, loginPw: pw });
-
       if (data.success) {
-        showAlert("success", "로그인 성공! " + data.data.admin.adminNm + "님 환영합니다.");
         localStorage.setItem("accessToken", data.data.accessToken);
-        // TODO: 추후 dashboard.html 로 이동
-        // window.location.href = "dashboard.html";
+        localStorage.setItem("adminInfo", JSON.stringify(data.data.admin));
+        showAlert("success", "로그인 성공! 대시보드로 이동합니다...");
+        setTimeout(() => window.location.href = "dashboard.html", 800);
       } else {
         showAlert("danger", data.message || "로그인 실패");
       }
