@@ -22,7 +22,16 @@ $(document).ready(async function() {
         $("#gameList").append(`<li class='text-muted'>등록된 게임이 없습니다.</li>`);
       } else {
         list.forEach(g => {
-          $("#gameList").append(`<li class='py-1'>🎮 ${g.name}</li>`);
+          $("#gameList").append(`<li class="py-1 game-link" data-id="${g.gameId}" style="cursor:pointer;">
+              🎮 ${g.name}
+            </li>`);
+        });
+
+        // 클릭 이벤트 연결
+        $(".game-link").click(function () {
+          const gameId = $(this).data("id");
+          localStorage.setItem("selectedGameId", gameId);
+          location.href = "game-manage.html";
         });
       }
     } else {

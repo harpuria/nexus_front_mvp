@@ -1,0 +1,36 @@
+<!-- Topbar -->
+<div class="topbar">
+    <div class="brand">NEXUS Console</div>
+    <div>
+      <span id="adminName" class="me-3"></span>
+      <button id="btnLogout" class="btn btn-sm btn-outline-light">로그아웃</button>
+    </div>
+  </div>
+  
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="menu-item" onclick="location.href='dashboard.html'">🏠 홈</div>
+    <div class="menu-item" onclick="location.href='game-list.html'">🎮 게임 목록</div>
+    <hr>
+    <div class="px-3">
+      <h6 class="text-muted">게임 관리 메뉴</h6>
+    </div>
+    <div class="menu-item" data-page="game-manage.html">⚙️ 게임 개요</div>
+    <div class="menu-item" data-page="game-users.html">👥 유저 관리</div>
+    <div class="menu-item" data-page="game-currency.html">💰 재화 관리</div>
+    <div class="menu-item" data-page="game-products.html">🛒 상품 관리</div>
+    <div class="menu-item" data-page="game-coupons.html">🎟 쿠폰 관리</div>
+    <div class="menu-item" data-page="game-mails.html">📨 메일 관리</div>
+  </div>
+  
+  <!-- Game Header (게임 요약 정보) -->
+  <div class="game-header">
+    <div>
+      <span class="game-title" id="gameTitle">게임명 불러오는 중...</span>
+      <small id="gameInfo"></small>
+    </div>
+    <button id="btnBackDashboard" class="btn btn-outline-secondary btn-sm">
+      ← 대시보드로
+    </button>
+  </div>
+  
