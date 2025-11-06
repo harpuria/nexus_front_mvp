@@ -12,57 +12,16 @@
 
   <style>
     body { background-color: #f8f9fa; font-size: 14px; }
-
-    /* 상단 바 */
-    .topbar {
-      height: 60px;
-      background-color: #1e293b;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-    }
+    .topbar { height: 60px; background-color: #1e293b; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
     .topbar .brand { font-weight: bold; font-size: 1.2rem; }
-
-    /* 사이드바 */
-    .sidebar {
-      width: 240px;
-      background-color: #fff;
-      border-right: 1px solid #dee2e6;
-      height: calc(100vh - 60px);
-      position: fixed;
-      top: 60px;
-      left: 0;
-      overflow-y: auto;
-    }
-
-    .sidebar .menu-item {
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-    .sidebar .menu-item:hover {
-      background-color: #f1f5f9;
-    }
-    .sidebar .menu-item.active {
-      background-color: #e2e8f0;
-      font-weight: 600;
-    }
-
-    /* 메인 콘텐츠 */
-    .main-content {
-      margin-left: 240px;
-      padding: 24px;
-      margin-top: 60px;
-    }
-
+    .sidebar { width: 240px; background-color: #fff; border-right: 1px solid #dee2e6;
+      height: calc(100vh - 60px); position: fixed; top: 60px; left: 0; overflow-y: auto; }
+    .sidebar .menu-item { padding: 12px 20px; cursor: pointer; }
+    .sidebar .menu-item:hover { background-color: #f1f5f9; }
+    .sidebar .menu-item.active { background-color: #e2e8f0; font-weight: 600; }
+    .main-content { margin-left: 240px; padding: 24px; margin-top: 60px; }
     .search-bar { display: flex; gap: 8px; margin-bottom: 20px; }
     .table thead { background-color: #f1f5f9; }
     .pagination { justify-content: center; }
@@ -79,7 +38,7 @@
     </div>
   </div>
 
-  <!-- 사이드바 (dashboard 동일) -->
+  <!-- 사이드바 -->
   <div class="sidebar">
     <div class="menu-item" onclick="location.href='dashboard.html'">🏠 홈</div>
     <div class="menu-item active" onclick="location.href='admin-list.html'">👥 관리자 목록</div>
@@ -93,7 +52,10 @@
 
   <!-- 메인 콘텐츠 -->
   <div class="main-content container">
-    <h4 class="mb-4">관리자 목록</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4>관리자 목록</h4>
+      <button id="btnCreateAdmin" class="btn btn-sm btn-primary">신규 관리자 생성</button>
+    </div>
 
     <!-- 검색 -->
     <div class="search-bar">
@@ -122,6 +84,48 @@
     <nav>
       <ul id="pagination" class="pagination"></ul>
     </nav>
+  </div>
+
+  <!-- ✅ 관리자 생성 모달 -->
+  <div class="modal fade" id="createAdminModal" tabindex="-1" aria-labelledby="createAdminLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createAdminLabel">관리자 등록</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">이름</label>
+            <input type="text" id="newAdminNm" class="form-control" placeholder="홍길동">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">이메일</label>
+            <input type="email" id="newAdminEmail" class="form-control" placeholder="nexus@qwerty.io">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">로그인 ID</label>
+            <input type="text" id="newLoginId" class="form-control" placeholder="admin01">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">비밀번호</label>
+            <input type="password" id="newLoginPw" class="form-control" placeholder="******">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">권한</label>
+            <select id="newAdminRole" class="form-select">
+              <option value="SUPER">SUPER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="OPERATOR">OPERATOR</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          <button id="btnCreateAdminSubmit" class="btn btn-primary">등록</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="./js/api.js"></script>
