@@ -13,69 +13,30 @@
   <style>
     body { background-color: #f8f9fa; font-size: 14px; }
 
-    /* 상단 바 */
     .topbar {
-      height: 60px;
-      background-color: #1e293b;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
+      height: 60px; background-color: #1e293b; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     }
+
     .topbar .brand { font-weight: bold; font-size: 1.2rem; }
 
-    /* 게임 헤더 바 (게임 정보 요약) */
-    .game-header {
-      margin-left: 240px;
-      margin-top: 60px;
-      background-color: #fff;
-      border-bottom: 1px solid #dee2e6;
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 60px;
-      z-index: 90;
-    }
-    .game-header .game-title {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-    .game-header small {
-      color: #6c757d;
-      margin-left: 8px;
-    }
-
-    /* 사이드바 */
     .sidebar {
-      width: 240px;
-      background-color: #fff;
-      border-right: 1px solid #dee2e6;
-      height: calc(100vh - 60px);
-      position: fixed;
-      top: 60px;
-      left: 0;
-      overflow-y: auto;
+      width: 240px; background-color: #fff; border-right: 1px solid #dee2e6;
+      height: calc(100vh - 60px); position: fixed; top: 60px; left: 0; overflow-y: auto;
     }
-    .sidebar .menu-item {
-      padding: 12px 20px;
-      cursor: pointer;
-    }
-    .sidebar .menu-item:hover { background-color: #f1f5f9; }
-    .sidebar .menu-item.active { background-color: #e2e8f0; font-weight: 600; }
 
-    /* 메인 콘텐츠 */
+    .menu-item {
+      padding: 12px 20px; cursor: pointer;
+    }
+
+    .menu-item:hover { background-color: #f1f5f9; }
+    .menu-item.active { background-color: #e2e8f0; font-weight: 600; }
+
     .main-content {
       margin-left: 240px;
       padding: 24px;
-      margin-top: 120px; /* 헤더바 높이 고려 */
+      margin-top: 60px;
     }
 
     .card { border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
@@ -108,35 +69,54 @@
     <div class="menu-item" onclick="location.href='game-mails.html'">📨 메일 관리</div>
   </div>
 
-  <!-- 게임 상단 헤더 바 -->
-  <div class="game-header">
-    <div>
-      <span class="game-title" id="gameTitle">게임명 불러오는 중...</span>
-      <small id="gameInfo"></small>
-    </div>
-    <button id="btnBackDashboard" class="btn btn-outline-secondary btn-sm">
-      ← 대시보드로
-    </button>
-  </div>
-
   <!-- 메인 콘텐츠 -->
   <div class="main-content container">
-    <h4 class="mb-4">게임 관리</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 id="pageTitle">게임 관리</h4>
+      <button id="btnBackList" class="btn btn-sm btn-outline-secondary">← 목록으로</button>
+    </div>
 
-    <div class="card p-4">
-      <h5 class="mb-3">게임 정보</h5>
-      <div id="gameInfoCard">
-        <p><strong>게임 ID:</strong> <span id="gameId">-</span></p>
-        <p><strong>게임명:</strong> <span id="gameName">-</span></p>
-        <p><strong>버전:</strong> <span id="gameVersion">-</span></p>
-        <p><strong>상태:</strong> <span id="gameStatus">-</span></p>
-        <p><strong>조직 ID:</strong> <span id="orgId">-</span></p>
-        <p><strong>생성일:</strong> <span id="createdAt">-</span></p>
+    <div class="card p-4 mb-4">
+      <h5>🎮 게임 정보</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">게임 ID</label>
+          <input type="text" id="gameId" class="form-control" disabled>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">게임명</label>
+          <input type="text" id="gameName" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">버전</label>
+          <input type="text" id="gameVersion" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">상태</label>
+          <select id="gameStatus" class="form-select">
+            <option value="OPERATING">OPERATING</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+            <option value="STOPPED">STOPPED</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">조직 ID</label>
+          <input type="text" id="orgId" class="form-control" disabled>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">생성일</label>
+          <input type="text" id="createdAt" class="form-control" disabled>
+        </div>
+      </div>
+
+      <div class="text-end mt-4">
+        <button id="btnDeleteGame" class="btn btn-danger me-2">삭제</button>
+        <button id="btnUpdateGame" class="btn btn-primary">수정</button>
       </div>
     </div>
 
-    <div class="card mt-4 p-4">
-      <h5>빠른 이동</h5>
+    <div class="card p-4">
+      <h5>📊 하위 관리 메뉴</h5>
       <div class="d-flex flex-wrap gap-3">
         <button class="btn btn-outline-primary" onclick="location.href='game-users.html'">👥 유저 관리</button>
         <button class="btn btn-outline-success" onclick="location.href='game-currency.html'">💰 재화 관리</button>
@@ -149,6 +129,5 @@
 
   <script src="./js/api.js"></script>
   <script src="./js/game-manage.js"></script>
-
 </body>
 </html>
