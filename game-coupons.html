@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NEXUS Web Console - 게임 목록</title>
+  <title>NEXUS Web Console - 쿠폰 관리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Bootstrap & jQuery -->
@@ -18,8 +18,10 @@
       padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     }
     .topbar .brand { font-weight: bold; font-size: 1.2rem; }
-    .sidebar { width: 240px; background-color: #fff; border-right: 1px solid #dee2e6;
-      height: calc(100vh - 60px); position: fixed; top: 60px; left: 0; overflow-y: auto; }
+    .sidebar {
+      width: 240px; background-color: #fff; border-right: 1px solid #dee2e6;
+      height: calc(100vh - 60px); position: fixed; top: 60px; left: 0; overflow-y: auto;
+    }
     .menu-item { padding: 12px 20px; cursor: pointer; }
     .menu-item:hover { background-color: #f1f5f9; }
     .menu-item.active { background-color: #e2e8f0; font-weight: 600; }
@@ -42,86 +44,89 @@
   <!-- 사이드바 -->
   <div class="sidebar">
     <div class="menu-item" onclick="location.href='dashboard.html'">🏠 홈</div>
-    <div class="menu-item" onclick="location.href='admin-list.html'">👥 관리자 목록</div>
-    <div class="menu-item active" onclick="location.href='game-list.html'">🎮 게임 목록</div>
+    <div class="menu-item" onclick="location.href='game-list.html'">🎮 게임 목록</div>
     <hr>
     <div class="px-3">
-      <h6 class="text-muted">게임 목록</h6>
-      <ul id="gameList" class="list-unstyled mb-0"></ul>
+      <h6 class="text-muted">게임 관리 메뉴</h6>
     </div>
+    <div class="menu-item" onclick="location.href='game-manage.html'">⚙️ 게임 개요</div>
+    <div class="menu-item" onclick="location.href='game-users.html'">👥 유저 관리</div>
+    <div class="menu-item" onclick="location.href='game-currency.html'">💰 재화 관리</div>
+    <div class="menu-item" onclick="location.href='game-products.html'">🛒 상품 관리</div>
+    <div class="menu-item active" onclick="location.href='game-coupons.html'">🎟 쿠폰 관리</div>
+    <div class="menu-item" onclick="location.href='game-mails.html'">📨 메일 관리</div>
   </div>
 
   <!-- 메인 콘텐츠 -->
   <div class="main-content container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4>게임 목록</h4>
-      <button id="btnCreateGame" class="btn btn-sm btn-primary">신규 게임 생성</button>
+      <h4>🎟 쿠폰 관리</h4>
+      <button id="btnCreateCoupon" class="btn btn-sm btn-primary">+ 신규 쿠폰 등록</button>
     </div>
 
-    <!-- 검색 -->
     <div class="d-flex gap-2 mb-3">
-      <input type="text" id="searchKeyword" class="form-control" placeholder="게임 이름 검색">
+      <input type="text" id="searchKeyword" class="form-control" placeholder="쿠폰 이름 검색">
       <button id="btnSearch" class="btn btn-primary">검색</button>
     </div>
 
-    <!-- 테이블 -->
     <table class="table table-hover align-middle">
       <thead>
         <tr>
           <th>ID</th>
-          <th>게임명</th>
+          <th>쿠폰명</th>
+          <th>코드</th>
+          <th>만료일</th>
           <th>상태</th>
-          <th>버전</th>
-          <th>조직 ID</th>
-          <th>등록일</th>
+          <th>수정 / 삭제</th>
         </tr>
       </thead>
-      <tbody id="gameTableBody">
+      <tbody id="couponTableBody">
         <tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>
       </tbody>
     </table>
 
-    <!-- 페이지네이션 -->
-    <nav>
-      <ul id="pagination" class="pagination"></ul>
-    </nav>
+    <nav><ul id="pagination" class="pagination"></ul></nav>
   </div>
 
-  <!-- ✅ 신규 게임 생성 모달 -->
-  <div class="modal fade" id="createGameModal" tabindex="-1" aria-labelledby="createGameLabel" aria-hidden="true">
+  <!-- 신규 쿠폰 등록 모달 -->
+  <div class="modal fade" id="createCouponModal" tabindex="-1" aria-labelledby="createCouponLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="createGameLabel">신규 게임 생성</h5>
+          <h5 class="modal-title">신규 쿠폰 등록</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">게임명</label>
-            <input type="text" id="newGameName" class="form-control" placeholder="게임 이름">
+          <div class="mb-2">
+            <label class="form-label">쿠폰명</label>
+            <input type="text" id="newCouponName" class="form-control" placeholder="예: 신년 이벤트 쿠폰">
           </div>
-          <div class="mb-3">
-            <label class="form-label">버전</label>
-            <input type="text" id="newGameVersion" class="form-control" placeholder="1.0.0">
+          <div class="mb-2">
+            <label class="form-label">쿠폰 코드</label>
+            <input type="text" id="newCouponCode" class="form-control" placeholder="예: NEWYEAR2025">
           </div>
-          <div class="mb-3">
+          <div class="mb-2">
+            <label class="form-label">만료일</label>
+            <input type="date" id="newCouponExpire" class="form-control">
+          </div>
+          <div class="mb-2">
             <label class="form-label">상태</label>
-            <select id="newGameStatus" class="form-select">
-              <option value="OPERATING">OPERATING</option>
-              <option value="MAINTENANCE">MAINTENANCE</option>
-              <option value="STOPPED">STOPPED</option>
+            <select id="newCouponStatus" class="form-select">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="EXPIRED">EXPIRED</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-          <button id="btnCreateGameSubmit" class="btn btn-primary">등록</button>
+          <button id="btnSubmitCreate" class="btn btn-primary">등록</button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="./js/api.js"></script>
-  <script src="./js/game-list.js"></script>
+  <script src="./js/game-coupons.js"></script>
 </body>
 </html>

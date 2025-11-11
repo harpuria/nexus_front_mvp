@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>NEXUS Web Console - 유저 관리</title>
+  <title>NEXUS Web Console - 재화 관리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Bootstrap & jQuery -->
@@ -50,8 +50,8 @@
       <h6 class="text-muted">게임 관리 메뉴</h6>
     </div>
     <div class="menu-item" onclick="location.href='game-manage.html'">⚙️ 게임 개요</div>
-    <div class="menu-item active" onclick="location.href='game-users.html'">👥 유저 관리</div>
-    <div class="menu-item" onclick="location.href='game-currency.html'">💰 재화 관리</div>
+    <div class="menu-item" onclick="location.href='game-users.html'">👥 유저 관리</div>
+    <div class="menu-item active" onclick="location.href='game-currency.html'">💰 재화 관리</div>
     <div class="menu-item" onclick="location.href='game-products.html'">🛒 상품 관리</div>
     <div class="menu-item" onclick="location.href='game-coupons.html'">🎟 쿠폰 관리</div>
     <div class="menu-item" onclick="location.href='game-mails.html'">📨 메일 관리</div>
@@ -60,12 +60,12 @@
   <!-- 메인 콘텐츠 -->
   <div class="main-content container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4>👥 유저 관리</h4>
-      <button id="btnCreate" class="btn btn-sm btn-primary">+ 신규 유저 생성</button>
+      <h4>💰 재화 관리</h4>
+      <button id="btnCreateCurrency" class="btn btn-sm btn-primary">+ 신규 재화 등록</button>
     </div>
 
     <div class="d-flex gap-2 mb-3">
-      <input type="text" id="searchKeyword" class="form-control" placeholder="유저 이름 또는 ID 검색">
+      <input type="text" id="searchKeyword" class="form-control" placeholder="재화 이름 검색">
       <button id="btnSearch" class="btn btn-primary">검색</button>
     </div>
 
@@ -73,43 +73,48 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>닉네임</th>
-          <th>레벨</th>
-          <th>가입일</th>
-          <th>상태</th>
+          <th>이름</th>
+          <th>타입</th>
+          <th>초기값</th>
+          <th>설명</th>
+          <th>수정 / 삭제</th>
         </tr>
       </thead>
-      <tbody id="tableBody">
-        <tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>
+      <tbody id="currencyTableBody">
+        <tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>
       </tbody>
     </table>
 
     <nav><ul id="pagination" class="pagination"></ul></nav>
   </div>
 
-  <!-- 신규 생성 모달 -->
-  <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createLabel" aria-hidden="true">
+  <!-- 신규 재화 생성 모달 -->
+  <div class="modal fade" id="createCurrencyModal" tabindex="-1" aria-labelledby="createCurrencyLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="createLabel">신규 유저 생성</h5>
+          <h5 class="modal-title">신규 재화 등록</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">닉네임</label>
-            <input type="text" id="newName" class="form-control" placeholder="닉네임 입력">
+          <div class="mb-2">
+            <label class="form-label">재화 이름</label>
+            <input type="text" id="newCurrencyName" class="form-control" placeholder="예: 골드">
           </div>
-          <div class="mb-3">
-            <label class="form-label">레벨</label>
-            <input type="number" id="newLevel" class="form-control" placeholder="1">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">상태</label>
-            <select id="newStatus" class="form-select">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="BANNED">BANNED</option>
+          <div class="mb-2">
+            <label class="form-label">타입</label>
+            <select id="newCurrencyType" class="form-select">
+              <option value="HARD">HARD (프리미엄)</option>
+              <option value="SOFT">SOFT (일반)</option>
             </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">초기값</label>
+            <input type="number" id="newCurrencyInitial" class="form-control" value="0">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">설명</label>
+            <textarea id="newCurrencyDesc" class="form-control" rows="2"></textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -121,6 +126,6 @@
   </div>
 
   <script src="./js/api.js"></script>
-  <script src="./js/game-users.js"></script>
+  <script src="./js/game-currency.js"></script>
 </body>
 </html>
