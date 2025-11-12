@@ -98,7 +98,7 @@ $(document).ready(function () {
     $(".game-row").click(function () {
       const gameId = $(this).data("id");
       localStorage.setItem("selectedGameId", gameId);
-      location.href = "game-detail.html";
+      location.href = "game-manage.html";
     });
   }
 
@@ -154,16 +154,30 @@ $(document).ready(function () {
   async function loadSidebarGames(token) {
     try {
       const data = await apiRequest("/game/list", "GET", null, token);
-      if (data.success) {
-        const list = data.data.games || [];
-        $("#gameList").html(
-          list.length === 0
-            ? `<li class='text-muted'>등록된 게임이 없습니다.</li>`
-            : list.map(g => `<li class='py-1'>🎮 ${g.name}</li>`).join("")
-        );
+      if (!data.success) {
+        $("#gameList").html(`<li class='text-danger'>게임 정보를 불러올 수 없습니다.</li>`);
+        return;
       }
+
+      const list = data.data.games || [];
+      if (list.length === 0) {
+        $("#gameList").html(`<li class='text-muted'>등록된 게임이 없습니다.</li>`);
+        return;
+      }
+
+      $("#gameList").html(
+        list.map(
+          g => `<li class="py-1 sidebar-game-link" data-id="${g.gameId}" style="cursor:pointer;">🎮 ${g.name}</li>`
+        ).join("")
+      );
+
+      $(".sidebar-game-link").click(function () {
+        const gameId = $(this).data("id");
+        localStorage.setItem("selectedGameId", gameId);
+        location.href = "game-manage.html";
+      });
     } catch {
-      $("#gameList").append(`<li class='text-danger'>서버 오류</li>`);
+      $("#gameList").html(`<li class='text-danger'>서버 오류</li>`);
     }
   }
 

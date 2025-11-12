@@ -35,6 +35,8 @@ $(document).ready(async function () {
       $("#gameVersion").val(g.version);
       $("#gameStatus").val(g.status);
       $("#orgId").val(g.orgId);
+      $("#clientAppId").val(g.clientAppId || "-");
+      $("#signatureKey").val(g.signatureKey || "-");
       $("#createdAt").val(g.createdAt ? g.createdAt.split("T")[0] : "-");
       $("#pageTitle").text(`게임 관리 - ${g.name}`);
     } else {

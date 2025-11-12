@@ -92,15 +92,29 @@ $(document).ready(async function () {
   // 사이드바의 게임 목록
   try {
     const data = await apiRequest("/game/list", "GET", null, token);
-    if (data.success) {
-      const list = data.data.games || [];
-      if (list.length === 0) {
-        $("#gameList").append(`<li class='text-muted'>등록된 게임이 없습니다.</li>`);
-      } else {
-        list.forEach(g => $("#gameList").append(`<li class='py-1'>🎮 ${g.name}</li>`));
-      }
+    if (!data.success) {
+      $("#gameList").html(`<li class='text-danger'>게임 정보를 불러올 수 없습니다.</li>`);
+      return;
     }
+
+    const list = data.data.games || [];
+    if (list.length === 0) {
+      $("#gameList").html(`<li class='text-muted'>등록된 게임이 없습니다.</li>`);
+      return;
+    }
+
+    $("#gameList").html(
+      list.map(
+        g => `<li class="py-1 sidebar-game-link" data-id="${g.gameId}" style="cursor:pointer;">🎮 ${g.name}</li>`
+      ).join("")
+    );
+
+    $(".sidebar-game-link").click(function () {
+      const gameId = $(this).data("id");
+      localStorage.setItem("selectedGameId", gameId);
+      location.href = "game-manage.html";
+    });
   } catch (e) {
-    $("#gameList").append(`<li class='text-danger'>서버 오류</li>`);
+    $("#gameList").html(`<li class='text-danger'>서버 오류</li>`);
   }
 });
