@@ -74,14 +74,13 @@
         <tr>
           <th>ID</th>
           <th>이름</th>
-          <th>타입</th>
-          <th>초기값</th>
+          <th>최대값</th>
           <th>설명</th>
           <th>수정 / 삭제</th>
         </tr>
       </thead>
       <tbody id="currencyTableBody">
-        <tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>
+        <tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>
       </tbody>
     </table>
 
@@ -102,15 +101,8 @@
             <input type="text" id="newCurrencyName" class="form-control" placeholder="예: 골드">
           </div>
           <div class="mb-2">
-            <label class="form-label">타입</label>
-            <select id="newCurrencyType" class="form-select">
-              <option value="HARD">HARD (프리미엄)</option>
-              <option value="SOFT">SOFT (일반)</option>
-            </select>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">초기값</label>
-            <input type="number" id="newCurrencyInitial" class="form-control" value="0">
+            <label class="form-label">최대값</label>
+            <input type="number" id="newCurrencyMax" class="form-control" value="0" min="0">
           </div>
           <div class="mb-2">
             <label class="form-label">설명</label>

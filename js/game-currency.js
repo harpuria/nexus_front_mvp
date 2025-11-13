@@ -21,25 +21,25 @@ $(document).ready(function () {
 
   // 🔹 재화 목록 조회
   async function loadCurrencies(page = 0, keyword = "") {
-    $("#currencyTableBody").html(`<tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>`);
+    $("#currencyTableBody").html(`<tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>`);
     try {
-      const data = await apiRequest(`/game/${gameId}/currency/list?page=${page}&size=${pageSize}&keyword=${keyword}`, "GET", null, token);
+      const data = await apiRequest(`/currency/list/${gameId}?page=${page}&size=${pageSize}&keyword=${keyword}`, "GET", null, token);
       if (data.success && data.data) {
         const { currencies, totalPages, hasNext, hasPrevious } = data.data;
         renderTable(currencies);
         renderPagination(page, totalPages, hasNext, hasPrevious);
       } else {
-        $("#currencyTableBody").html(`<tr><td colspan="6" class="text-center text-muted">데이터 없음</td></tr>`);
+        $("#currencyTableBody").html(`<tr><td colspan="5" class="text-center text-muted">데이터 없음</td></tr>`);
       }
     } catch {
-      $("#currencyTableBody").html(`<tr><td colspan="6" class="text-danger text-center">서버 오류</td></tr>`);
+      $("#currencyTableBody").html(`<tr><td colspan="5" class="text-danger text-center">서버 오류</td></tr>`);
     }
   }
 
   // 🔹 테이블 렌더링
   function renderTable(list) {
     if (!list || list.length === 0) {
-      $("#currencyTableBody").html(`<tr><td colspan="6" class="text-center text-muted">데이터 없음</td></tr>`);
+      $("#currencyTableBody").html(`<tr><td colspan="5" class="text-center text-muted">데이터 없음</td></tr>`);
       return;
     }
 
@@ -47,9 +47,8 @@ $(document).ready(function () {
       <tr data-id="${c.currencyId}">
         <td>${c.currencyId}</td>
         <td><input type="text" class="form-control form-control-sm currency-name" value="${c.name}"></td>
-        <td>${c.type}</td>
-        <td><input type="number" class="form-control form-control-sm currency-initial" value="${c.initialValue}"></td>
-        <td><input type="text" class="form-control form-control-sm currency-desc" value="${c.description || ""}"></td>
+        <td><input type="number" class="form-control form-control-sm currency-max" value="${c.maxAmount ?? c.max_amount ?? ""}"></td>
+        <td><input type="text" class="form-control form-control-sm currency-desc" value="${c.desc ?? c.description ?? ""}"></td>
         <td>
           <button class="btn btn-sm btn-primary btnUpdate">수정</button>
           <button class="btn btn-sm btn-danger btnDelete">삭제</button>
@@ -65,7 +64,9 @@ $(document).ready(function () {
       const id = row.data("id");
       const body = {
         name: row.find(".currency-name").val(),
-        initialValue: parseInt(row.find(".currency-initial").val()) || 0,
+        maxAmount: parseInt(row.find(".currency-max").val()) || 0,
+        max_amount: parseInt(row.find(".currency-max").val()) || 0,
+        desc: row.find(".currency-desc").val(),
         description: row.find(".currency-desc").val()
       };
       if (!confirm("수정하시겠습니까?")) return;
@@ -124,15 +125,19 @@ $(document).ready(function () {
   $("#btnCreateCurrency").click(() => $("#createCurrencyModal").modal("show"));
 
   $("#btnSubmitCreate").click(async function () {
+    const maxValue = parseInt($("#newCurrencyMax").val()) || 0;
+    const description = $("#newCurrencyDesc").val().trim();
     const req = {
+      gameId: gameId,
       name: $("#newCurrencyName").val().trim(),
-      type: $("#newCurrencyType").val(),
-      initialValue: parseInt($("#newCurrencyInitial").val()) || 0,
-      description: $("#newCurrencyDesc").val().trim()
+      maxAmount: maxValue,
+      max_amount: maxValue,
+      desc: description,
+      createdBy:adminInfo.loginId
     };
     if (!req.name) return alert("재화 이름을 입력해주세요.");
     try {
-      const res = await apiRequest(`/game/${gameId}/currency`, "POST", req, token);
+      const res = await apiRequest(`/currency`, "POST", req, token);
       if (res.success) {
         alert("등록 완료");
         $("#createCurrencyModal").modal("hide");
