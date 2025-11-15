@@ -21,35 +21,36 @@ $(document).ready(function () {
 
   // 🔹 목록 조회
   async function loadList(page = 0, keyword = "") {
-    $("#tableBody").html(`<tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>`);
+    $("#tableBody").html(`<tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>`);
     try {
-      const data = await apiRequest(`/game/${gameId}/user/list?page=${page}&size=${pageSize}&keyword=${keyword}`, "GET", null, token);
+      const data = await apiRequest(`/game-user/list/${gameId}?page=${page}&size=${pageSize}&keyword=${keyword}`, "GET", null, token);
       if (data.success && data.data) {
         const { users, totalPages, hasNext, hasPrevious } = data.data;
         renderTable(users);
         renderPagination(page, totalPages, hasNext, hasPrevious);
       } else {
-        $("#tableBody").html(`<tr><td colspan="5" class="text-center text-muted">데이터가 없습니다.</td></tr>`);
+        $("#tableBody").html(`<tr><td colspan="6" class="text-center text-muted">데이터가 없습니다.</td></tr>`);
       }
     } catch {
-      $("#tableBody").html(`<tr><td colspan="5" class="text-center text-danger">서버 오류</td></tr>`);
+      $("#tableBody").html(`<tr><td colspan="6" class="text-center text-danger">서버 오류</td></tr>`);
     }
   }
 
   // 🔹 테이블 렌더링
   function renderTable(users) {
     if (!users || users.length === 0) {
-      $("#tableBody").html(`<tr><td colspan="5" class="text-center text-muted">검색 결과가 없습니다.</td></tr>`);
+      $("#tableBody").html(`<tr><td colspan="6" class="text-center text-muted">검색 결과가 없습니다.</td></tr>`);
       return;
     }
 
     const rows = users.map(u => `
       <tr class="row-click" data-id="${u.userId}" style="cursor:pointer;">
-        <td>${u.userId}</td>
-        <td>${u.nickname}</td>
-        <td>${u.level}</td>
-        <td>${u.createdAt?.split("T")[0] || "-"}</td>
-        <td>${u.status}</td>
+        <td>${u.userId || "-"}</td>
+        <td>${u.userLId || "-"}</td>
+        <td>${u.nickname || "-"}</td>
+        <td>${u.createdAt ? (u.createdAt.split("T")[0] + " " + u.createdAt.split("T")[1]?.substring(0, 5)) : "-"}</td>
+        <td>${u.updatedAt ? (u.updatedAt.split("T")[0] + " " + u.updatedAt.split("T")[1]?.substring(0, 5)) : "-"}</td>
+        <td>${u.provider || "-"}</td>
       </tr>
     `).join("");
 
@@ -118,22 +119,41 @@ $(document).ready(function () {
 
   // 🔹 신규 유저 생성
   $("#btnSubmitCreate").click(async function () {
-    const req = {
-      nickname: $("#newName").val().trim(),
-      level: parseInt($("#newLevel").val()) || 1,
-      status: $("#newStatus").val(),
-    };
+    const userLId = $("#newUserLId").val().trim();
+    const userLPw = $("#newUserLPw").val().trim();
+    const nickname = $("#newNickname").val().trim();
 
-    if (!req.nickname) {
+    if (!userLId) {
+      alert("유저 아이디를 입력해주세요.");
+      return;
+    }
+    if (!userLPw) {
+      alert("유저 비밀번호를 입력해주세요.");
+      return;
+    }
+    if (!nickname) {
       alert("닉네임을 입력해주세요.");
       return;
     }
 
+    const req = {
+      gameId: gameId,
+      userLId: userLId,
+      userLPw: userLPw,
+      nickname: nickname,
+      socialId: `admin${nickname}`, // 임시값 세팅
+      createdBy: adminInfo.loginId
+    };
+
     try {
-      const res = await apiRequest(`/game/${gameId}/user`, "POST", req, token);
+      const res = await apiRequest(`/game-user`, "POST", req, token);
       if (res.success) {
         alert("유저가 등록되었습니다.");
         $("#createModal").modal("hide");
+        // 모달 필드 초기화
+        $("#newUserLId").val("");
+        $("#newUserLPw").val("");
+        $("#newNickname").val("");
         loadList(currentPage, keyword);
       } else {
         alert("등록 실패: " + (res.message || "오류"));

@@ -72,15 +72,16 @@
     <table class="table table-hover align-middle">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>번호</th>
+          <th>유저 아이디</th>
           <th>닉네임</th>
-          <th>레벨</th>
           <th>가입일</th>
-          <th>상태</th>
+          <th>최근접속일</th>
+          <th>소셜 로그인</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="5" class="text-center text-muted">로딩 중...</td></tr>
+        <tr><td colspan="6" class="text-center text-muted">로딩 중...</td></tr>
       </tbody>
     </table>
 
@@ -97,19 +98,16 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">닉네임</label>
-            <input type="text" id="newName" class="form-control" placeholder="닉네임 입력">
+            <label class="form-label">유저 아이디 (USER_L_ID) <span class="text-danger">*</span></label>
+            <input type="text" id="newUserLId" class="form-control" placeholder="유저 아이디 입력">
           </div>
           <div class="mb-3">
-            <label class="form-label">레벨</label>
-            <input type="number" id="newLevel" class="form-control" placeholder="1">
+            <label class="form-label">유저 비밀번호 (USER_L_PW) <span class="text-danger">*</span></label>
+            <input type="password" id="newUserLPw" class="form-control" placeholder="유저 비밀번호 입력">
           </div>
           <div class="mb-3">
-            <label class="form-label">상태</label>
-            <select id="newStatus" class="form-select">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="BANNED">BANNED</option>
-            </select>
+            <label class="form-label">닉네임 (NICKNAME) <span class="text-danger">*</span></label>
+            <input type="text" id="newNickname" class="form-control" placeholder="닉네임 입력">
           </div>
         </div>
         <div class="modal-footer">
