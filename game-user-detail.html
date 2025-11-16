@@ -81,16 +81,47 @@
       <!-- 기본정보 -->
       <div class="tab-pane fade show active" id="tabInfo">
         <div class="row g-3">
-          <div class="col-md-4"><label class="form-label">유저 ID</label><input type="text" id="userId" class="form-control" disabled></div>
-          <div class="col-md-4"><label class="form-label">닉네임</label><input type="text" id="nickname" class="form-control"></div>
-          <div class="col-md-4"><label class="form-label">레벨</label><input type="number" id="level" class="form-control"></div>
-          <div class="col-md-4"><label class="form-label">상태</label>
-            <select id="status" class="form-select"><option value="ACTIVE">ACTIVE</option><option value="BANNED">BANNED</option></select></div>
-          <div class="col-md-4"><label class="form-label">가입일</label><input type="text" id="createdAt" class="form-control" disabled></div>
+          <div class="col-md-4">
+            <label class="form-label">유저 ID</label>
+            <input type="text" id="userId" class="form-control" disabled>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">닉네임</label>
+            <input type="text" id="nickname" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">DEVICE (최근 접속 기기)</label>
+            <input type="text" id="device" class="form-control" disabled>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">SOCIAL ID</label>
+            <input type="text" id="socialId" class="form-control" disabled>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">BLOCK START DATE</label>
+            <input type="text" id="blockStartDate" class="form-control" disabled>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">BLOCK END DATE</label>
+            <input type="text" id="blockEndDate" class="form-control" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">BLOCK REASON</label>
+            <textarea id="blockReason" class="form-control" rows="2" disabled></textarea>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">WITHDRAWAL DATE</label>
+            <input type="text" id="withdrawalDate" class="form-control" disabled>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">WITHDRAWAL REASON</label>
+            <textarea id="withdrawalReason" class="form-control" rows="2" disabled></textarea>
+          </div>
         </div>
         <div class="text-end mt-4">
           <button id="btnDeleteUser" class="btn btn-danger me-2">삭제</button>
-          <button id="btnUpdateUser" class="btn btn-primary">수정</button>
+          <button id="btnUpdateUser" class="btn btn-primary me-2">수정</button>
+          <button id="btnOpenBlockModal" class="btn btn-outline-dark">접속정지</button>
         </div>
       </div>
 
@@ -150,6 +181,37 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- 접속 정지 모달 -->
+  <div class="modal fade" id="blockUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">접속 정지 설정</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">접속 정지 시작일</label>
+            <input type="date" id="modalBlockStartDate" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">정지 기간(일)</label>
+            <input type="number" id="modalBlockDays" class="form-control" min="1" value="1">
+            <div class="form-text">정지 종료일은 시작일과 기간을 기준으로 계산됩니다.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">정지 사유</label>
+            <textarea id="modalBlockReason" class="form-control" rows="3" placeholder="사유를 입력해주세요."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="button" class="btn btn-primary" id="btnSaveBlock">저장</button>
+        </div>
+      </div>
     </div>
   </div>
 
