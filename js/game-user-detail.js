@@ -122,16 +122,85 @@ $(document).ready(async function () {
   });
 
   // ✅ 재화, 인벤토리, 로그 불러오기
+  const $currencyBody = $("#currencyBody");
   loadCurrency(); loadInventory(); loadLogs();
 
   async function loadCurrency() {
+    $currencyBody.html(`<tr><td colspan="4" class="text-center text-muted">로딩 중...</td></tr>`);
     try {
-      const res = await apiRequest(`/game/${gameId}/user/${userId}/currency`, "GET", null, token);
-      if (res.success && res.data?.length) {
-        $("#currencyBody").html(res.data.map(c => `<tr><td>${c.name}</td><td>${c.amount}</td></tr>`).join(""));
-      } else $("#currencyBody").html(`<tr><td colspan="2" class="text-center text-muted">데이터 없음</td></tr>`);
-    } catch { $("#currencyBody").html(`<tr><td colspan="2" class="text-danger text-center">로드 실패</td></tr>`); }
+      const res = await apiRequest(`/user-currency/list/${userId}`, "GET", null, token);
+      const list = Array.isArray(res?.data) ? res.data : [];
+      if (res.success && list.length) {
+        renderCurrencyRows(list);
+      } else {
+        $currencyBody.html(`<tr><td colspan="4" class="text-center text-muted">데이터 없음</td></tr>`);
+      }
+    } catch {
+      $currencyBody.html(`<tr><td colspan="4" class="text-danger text-center">로드 실패</td></tr>`);
+    }
   }
+
+  function renderCurrencyRows(list) {
+    const rows = list.map(currency => {
+      const userCurrencyId = currency.userCurrencyId ?? currency.user_currency_id ?? currency.id ?? "";
+      const currencyId = currency.currencyId ?? currency.currency_id ?? currencyIdFromName(currency);
+      const name = currency.currencyName ?? currency.name ?? currency.currency_nm ?? "-";
+      const rawAmount = currency.amount ?? currency.balance ?? currency.value ?? 0;
+      const amount = Number.isFinite(Number(rawAmount)) ? Number(rawAmount) : 0;
+      return `
+        <tr data-user-currency-id="${userCurrencyId}" data-currency-id="${currencyId || ""}">
+          <td>${userCurrencyId || currencyId || "-"}</td>
+          <td>${name}</td>
+          <td>
+            <input type="number" class="form-control form-control-sm currency-amount" value="${amount}" min="0" />
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary btn-save-currency w-100">저장</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+    $currencyBody.html(rows);
+  }
+
+  function currencyIdFromName(currency) {
+    if (!currency) return "";
+    if (currency.currencyKey) return currency.currencyKey;
+    const name = currency.currencyName ?? currency.name;
+    return name ? name.replace(/\s+/g, "_").toLowerCase() : "";
+  }
+
+  $("#currencyBody").on("click", ".btn-save-currency", async function () {
+    const $row = $(this).closest("tr");
+    const userCurrencyId = $row.data("userCurrencyId");
+    const currencyId = $row.data("currencyId");
+    const $amountInput = $row.find(".currency-amount");
+    const amount = parseInt($amountInput.val(), 10);
+    if (Number.isNaN(amount) || amount < 0) {
+      alert("재화 수량은 0 이상의 숫자여야 합니다.");
+      return;
+    }
+    const payload = {
+      userId,
+      amount,
+      currencyId: currencyId || null,
+      userCurrencyId: userCurrencyId || null,
+      updatedBy: adminInfo.loginId || adminInfo.adminNm || "admin"
+    };
+    const endpoint = userCurrencyId ? `/user-currency/${userCurrencyId}` : "/user-currency";
+    if (!confirm("해당 재화 수량을 수정하시겠습니까?")) return;
+    try {
+      const res = await apiRequest(endpoint, "PATCH", payload, token);
+      if (res.success) {
+        alert("재화가 수정되었습니다.");
+        await loadCurrency();
+      } else {
+        alert(res.message || "수정에 실패했습니다.");
+      }
+    } catch {
+      alert("재화를 수정할 수 없습니다.");
+    }
+  });
 
   async function loadInventory() {
     try {

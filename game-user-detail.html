@@ -127,9 +127,21 @@
 
       <!-- 보유 재화 -->
       <div class="tab-pane fade" id="tabCurrency">
+        <div class="alert alert-warning small mb-2">
+          재화를 삭제할 수는 없으며 수량만 수정할 수 있습니다.
+        </div>
         <table class="table table-striped align-middle mt-2">
-          <thead><tr><th>재화명</th><th>수량</th></tr></thead>
-          <tbody id="currencyBody"><tr><td colspan="2" class="text-center text-muted">로딩 중...</td></tr></tbody>
+          <thead>
+            <tr>
+              <th style="width: 140px;">ID</th>
+              <th>재화명</th>
+              <th style="width: 280px;">보유 수량</th>
+              <th style="width: 120px;">수정</th>
+            </tr>
+          </thead>
+          <tbody id="currencyBody">
+            <tr><td colspan="4" class="text-center text-muted">로딩 중...</td></tr>
+          </tbody>
         </table>
       </div>
 
